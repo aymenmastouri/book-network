@@ -7,12 +7,15 @@ import { Observable } from 'rxjs';
 import { create } from '../api/fn/books/create';
 import { get } from '../api/fn/books/get';
 import { update } from '../api/fn/books/update';
+import { BookRequest } from '../api/models/book-request';
 import { Api } from '../core/api';
 import { ToastService } from '../shared/toast.service';
 
+const GENRES = ['CLASSIC', 'CRIME', 'SCIFI', 'FANTASY', 'ROMANCE', 'HISTORY', 'NONFICTION', 'OTHER'] as const;
+
 /** Add a book to the shelf, or edit one that is already there. */
 @Component({
-  selector: 'pt-book-form',
+  selector: 'bn-book-form',
   imports: [TranslocoDirective, FormsModule],
   template: `
     <ng-container *transloco="let t">
@@ -29,10 +32,20 @@ import { ToastService } from '../shared/toast.service';
           <span class="mb-1 block text-sm font-medium">{{ t('form.author') }}</span>
           <input [(ngModel)]="authorName" name="authorName" required maxlength="200" class="field" />
         </label>
-        <label class="block">
-          <span class="mb-1 block text-sm font-medium">{{ t('form.isbn') }}</span>
-          <input [(ngModel)]="isbn" name="isbn" maxlength="20" class="field" />
-        </label>
+        <div class="grid grid-cols-2 gap-4">
+          <label class="block">
+            <span class="mb-1 block text-sm font-medium">{{ t('form.isbn') }}</span>
+            <input [(ngModel)]="isbn" name="isbn" maxlength="20" class="field" />
+          </label>
+          <label class="block">
+            <span class="mb-1 block text-sm font-medium">{{ t('form.genre') }}</span>
+            <select [(ngModel)]="genre" name="genre" class="field">
+              @for (g of genres; track g) {
+                <option [value]="g">{{ t('genres.' + g) }}</option>
+              }
+            </select>
+          </label>
+        </div>
         <label class="block">
           <span class="mb-1 block text-sm font-medium">{{ t('form.synopsis') }}</span>
           <textarea [(ngModel)]="synopsis" name="synopsis" rows="4" maxlength="2000" class="field"></textarea>
@@ -59,6 +72,7 @@ import { ToastService } from '../shared/toast.service';
     .field {
       width: 100%; border: 1px solid var(--color-shelf); border-radius: 0.375rem;
       background: var(--color-card); padding: 0.5rem 0.75rem; font-size: 0.875rem;
+      color: var(--color-ink);
     }
     .field:focus { outline: 2px solid var(--color-brand); outline-offset: 0; }
   `,
@@ -69,11 +83,13 @@ export class BookFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
+  protected readonly genres = GENRES;
   protected readonly editing = signal(false);
   protected readonly title = signal('');
   protected readonly authorName = signal('');
   protected readonly isbn = signal('');
   protected readonly synopsis = signal('');
+  protected readonly genre = signal<BookRequest['genre']>('OTHER');
   protected readonly shareable = signal(true);
 
   private bookId: number | null = null;
@@ -88,17 +104,19 @@ export class BookFormComponent implements OnInit {
         this.authorName.set(b.authorName ?? '');
         this.isbn.set(b.isbn ?? '');
         this.synopsis.set(b.synopsis ?? '');
+        this.genre.set(b.genre ?? 'OTHER');
         this.shareable.set(b.shareable ?? true);
       });
     }
   }
 
   protected save(): void {
-    const body = {
+    const body: BookRequest = {
       title: this.title().trim(),
       authorName: this.authorName().trim(),
       isbn: this.isbn().trim(),
       synopsis: this.synopsis().trim(),
+      genre: this.genre(),
       shareable: this.shareable(),
     };
     const request: Observable<unknown> = this.bookId

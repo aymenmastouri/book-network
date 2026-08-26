@@ -12,7 +12,7 @@ import { ToastService } from '../shared/toast.service';
 
 /** Returns of the caller's own books — approving one frees the book again. */
 @Component({
-  selector: 'pt-returns',
+  selector: 'bn-returns',
   imports: [TranslocoDirective, RouterLink, DatePipe, PaginatorComponent],
   template: `
     <ng-container *transloco="let t">
@@ -45,7 +45,7 @@ import { ToastService } from '../shared/toast.service';
               </li>
             }
           </ul>
-          <pt-paginator [page]="pageIndex()" [totalPages]="page.totalPages ?? 0"
+          <bn-paginator [page]="pageIndex()" [totalPages]="page.totalPages ?? 0"
                         (pageChange)="load($event)" />
         } @else {
           <p class="rounded-lg border border-dashed border-shelf p-10 text-center text-ink-soft">

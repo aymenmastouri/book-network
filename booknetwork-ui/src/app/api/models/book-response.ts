@@ -5,13 +5,18 @@ export interface BookResponse {
   archived?: boolean;
   authorName?: string;
   borrowed?: boolean;
+  genre?: 'CLASSIC' | 'CRIME' | 'SCIFI' | 'FANTASY' | 'ROMANCE' | 'HISTORY' | 'NONFICTION' | 'OTHER';
   hasCover?: boolean;
   id?: number;
   isbn?: string;
   mine?: boolean;
+  ownerId?: string;
   ownerName?: string;
+  queueLength?: number;
   rating?: number;
+  reservedByMe?: boolean;
   shareable?: boolean;
   synopsis?: string;
   title?: string;
+  wishlisted?: boolean;
 }

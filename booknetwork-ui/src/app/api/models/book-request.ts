@@ -3,6 +3,7 @@
 
 export interface BookRequest {
   authorName?: string;
+  genre?: 'CLASSIC' | 'CRIME' | 'SCIFI' | 'FANTASY' | 'ROMANCE' | 'HISTORY' | 'NONFICTION' | 'OTHER';
   isbn?: string;
   shareable?: boolean;
   synopsis?: string;

@@ -14,7 +14,7 @@ import { ToastService } from '../shared/toast.service';
 
 /** The caller's own books, with the owner-only controls. */
 @Component({
-  selector: 'pt-shelf',
+  selector: 'bn-shelf',
   imports: [TranslocoDirective, RouterLink, BookCardComponent, PaginatorComponent],
   template: `
     <ng-container *transloco="let t">
@@ -33,7 +33,7 @@ import { ToastService } from '../shared/toast.service';
         @if (page.content?.length) {
           <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @for (book of page.content; track book.id) {
-              <pt-book-card [book]="book">
+              <bn-book-card [book]="book">
                 <div class="flex flex-wrap gap-1.5 text-xs">
                   <a [routerLink]="['/books', book.id, 'edit']" class="owner-btn">{{ t('shelf.edit') }}</a>
                   <button (click)="onToggleShareable(book.id!)" class="owner-btn">
@@ -48,10 +48,10 @@ import { ToastService } from '../shared/toast.service';
                            (change)="onCover(book.id!, $event)" />
                   </label>
                 </div>
-              </pt-book-card>
+              </bn-book-card>
             }
           </div>
-          <pt-paginator [page]="pageIndex()" [totalPages]="page.totalPages ?? 0"
+          <bn-paginator [page]="pageIndex()" [totalPages]="page.totalPages ?? 0"
                         (pageChange)="load($event)" />
         } @else {
           <p class="rounded-lg border border-dashed border-shelf p-10 text-center text-ink-soft">

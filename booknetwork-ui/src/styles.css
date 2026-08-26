@@ -14,6 +14,21 @@
   --font-display: "Iowan Old Style", "Palatino", "Georgia", serif;
 }
 
+/* Dark mode: same tokens, night values. Toggled by .dark on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+.dark {
+  --color-paper: #191510;
+  --color-card: #221d16;
+  --color-ink: #ece5d8;
+  --color-ink-soft: #a89c8a;
+  --color-brand: #c98a45;
+  --color-brand-deep: #dfa55f;
+  --color-shelf: #352c20;
+  --color-ok: #7fae8e;
+  --color-warn: #d08a7c;
+}
+
 html {
   background: var(--color-paper);
   color: var(--color-ink);

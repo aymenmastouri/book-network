@@ -30,5 +30,13 @@ export const routes: Routes = [
     path: 'returns',
     loadComponent: () => import('./pages/returns.component').then((m) => m.ReturnsComponent),
   },
+  {
+    path: 'wishlist',
+    loadComponent: () => import('./pages/wishlist.component').then((m) => m.WishlistComponent),
+  },
+  {
+    path: 'members/:id',
+    loadComponent: () => import('./pages/member.component').then((m) => m.MemberComponent),
+  },
   { path: '**', redirectTo: 'books' },
 ];

@@ -2,6 +2,7 @@
   "app": {
     "tagline": "teil dein Regal",
     "language": "Sprache wechseln",
+    "theme": "Design wechseln",
     "greeting": "Willkommen, {{name}}",
     "logout": "Abmelden"
   },
@@ -9,15 +10,36 @@
     "browse": "Stöbern",
     "shelf": "Mein Regal",
     "borrowed": "Ausgeliehen",
-    "returns": "Rückgaben"
+    "returns": "Rückgaben",
+    "wishlist": "Wunschliste"
   },
   "browse": {
     "title": "Gemeinschaftsregal",
     "subtitle": "Bücher, die deine Nachbarn gerade teilen.",
-    "empty": "Noch nichts im Regal — teil doch das erste Buch."
+    "search": "Titel oder Autor·in suchen…",
+    "empty": "Nichts gefunden — andere Suche oder anderes Genre probieren."
+  },
+  "sort": {
+    "newest": "Neueste zuerst",
+    "rating": "Beste Bewertung"
+  },
+  "genres": {
+    "ALL": "Alle Genres",
+    "CLASSIC": "Klassiker",
+    "CRIME": "Krimi",
+    "SCIFI": "Science-Fiction",
+    "FANTASY": "Fantastik",
+    "ROMANCE": "Liebesroman",
+    "HISTORY": "Geschichte",
+    "NONFICTION": "Sachbuch",
+    "OTHER": "Sonstiges"
   },
   "book": {
     "borrow": "Ausleihen",
+    "reserve": "Reservieren",
+    "cancelReservation": "Schlange verlassen",
+    "reservedByMe": "In der Schlange",
+    "queue": "{{count}} wartend",
     "sharedBy": "geteilt von {{name}}"
   },
   "status": {
@@ -37,14 +59,28 @@
     "cover": "Cover…",
     "empty": "Dein Regal ist leer. Stell dein erstes Buch hinein."
   },
+  "wishlist": {
+    "title": "Wunschliste",
+    "subtitle": "Bücher, die du lesen willst.",
+    "add": "Auf die Wunschliste",
+    "remove": "Von der Wunschliste nehmen",
+    "empty": "Noch nichts hier — merk dir Bücher beim Stöbern."
+  },
   "borrowed": {
     "title": "Ausgeliehene Bücher",
     "subtitle": "Was du gerade liest — und was du gelesen hast.",
     "since": "seit {{date}}",
+    "due": "fällig {{date}}",
+    "overdue": "Überfällig",
     "closed": "Abgeschlossen",
     "waitingApproval": "Wartet auf Bestätigung",
     "return": "Zurückgeben",
     "empty": "Du hast noch nichts ausgeliehen."
+  },
+  "reservations": {
+    "title": "Meine Reservierungen",
+    "position": "Position {{position}} in der Schlange",
+    "cancel": "Schlange verlassen"
   },
   "returns": {
     "title": "Rückgaben",
@@ -53,6 +89,11 @@
     "approved": "Bestätigt",
     "approve": "Rückgabe bestätigen",
     "empty": "Keine Rückgaben offen."
+  },
+  "member": {
+    "since": "Mitglied seit {{date}}",
+    "shares": "{{count}} Bücher im Regal",
+    "shelfTitle": "Geteiltes Regal"
   },
   "feedback": {
     "title": "Feedback",
@@ -68,6 +109,7 @@
     "title": "Titel",
     "author": "Autor·in",
     "isbn": "ISBN",
+    "genre": "Genre",
     "synopsis": "Kurzbeschreibung",
     "shareable": "Dieses Buch mit der Gemeinschaft teilen",
     "save": "Speichern",
@@ -81,7 +123,11 @@
   "toasts": {
     "borrowed": "Viel Freude beim Lesen — das Buch ist vorerst deins.",
     "returned": "Zurückgegeben. Der Besitzer bestätigt es gleich.",
-    "approved": "Rückgabe bestätigt — das Buch ist wieder verfügbar.",
+    "approved": "Rückgabe bestätigt — das Buch zieht weiter.",
+    "reserved": "Du stehst in der Schlange.",
+    "reservationCanceled": "Du hast die Schlange verlassen.",
+    "wishlistAdded": "Auf deiner Wunschliste.",
+    "wishlistRemoved": "Von der Wunschliste genommen.",
     "coverUploaded": "Cover aktualisiert.",
     "feedbackSaved": "Danke für dein Feedback.",
     "bookSaved": "Buch gespeichert."
@@ -96,6 +142,10 @@
     "not_returned_yet": "Es wurde noch nicht zurückgegeben.",
     "not_owner": "Das darf nur der Besitzer.",
     "never_borrowed": "Bewerte nur Bücher, die du ausgeliehen hast.",
+    "book_available": "Dieses Buch ist frei — leih es einfach aus.",
+    "you_hold_it": "Du hältst dieses Buch gerade selbst.",
+    "already_reserved": "Du stehst schon in der Schlange.",
+    "no_reservation": "Du hast keine Reservierung für dieses Buch.",
     "cover_type_unsupported": "Cover müssen JPEG-, PNG- oder WebP-Bilder sein.",
     "not_found": "Dieses Buch gibt es nicht.",
     "unknown": "Da ist etwas schiefgelaufen. Bitte versuch es erneut."

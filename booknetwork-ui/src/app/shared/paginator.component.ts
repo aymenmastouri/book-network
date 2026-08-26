@@ -2,7 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 @Component({
-  selector: 'pt-paginator',
+  selector: 'bn-paginator',
   imports: [TranslocoDirective],
   template: `
     <ng-container *transloco="let t">

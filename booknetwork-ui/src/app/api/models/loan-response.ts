@@ -6,9 +6,11 @@ export interface LoanResponse {
   authorName?: string;
   bookId?: number;
   borrowedAt?: string;
+  dueAt?: string;
   hasCover?: boolean;
   id?: number;
   isbn?: string;
+  overdue?: boolean;
   returned?: boolean;
   returnedAt?: string;
   title?: string;

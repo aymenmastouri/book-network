@@ -2,6 +2,7 @@
   "app": {
     "tagline": "share your shelf",
     "language": "Switch language",
+    "theme": "Switch theme",
     "greeting": "Welcome, {{name}}",
     "logout": "Sign out"
   },
@@ -9,15 +10,36 @@
     "browse": "Browse",
     "shelf": "My shelf",
     "borrowed": "Borrowed",
-    "returns": "Returns"
+    "returns": "Returns",
+    "wishlist": "Wishlist"
   },
   "browse": {
     "title": "Community shelf",
     "subtitle": "Books your neighbours are sharing right now.",
-    "empty": "Nothing on the shelf yet — be the first to share a book."
+    "search": "Search title or author…",
+    "empty": "Nothing matches — try another search or genre."
+  },
+  "sort": {
+    "newest": "Newest first",
+    "rating": "Best rated"
+  },
+  "genres": {
+    "ALL": "All genres",
+    "CLASSIC": "Classic",
+    "CRIME": "Crime",
+    "SCIFI": "Science fiction",
+    "FANTASY": "Fantasy",
+    "ROMANCE": "Romance",
+    "HISTORY": "History",
+    "NONFICTION": "Non-fiction",
+    "OTHER": "Other"
   },
   "book": {
     "borrow": "Borrow",
+    "reserve": "Reserve",
+    "cancelReservation": "Leave queue",
+    "reservedByMe": "In queue",
+    "queue": "{{count}} waiting",
     "sharedBy": "shared by {{name}}"
   },
   "status": {
@@ -37,14 +59,28 @@
     "cover": "Cover…",
     "empty": "Your shelf is empty. Add your first book."
   },
+  "wishlist": {
+    "title": "Wishlist",
+    "subtitle": "Books you want to read.",
+    "add": "Add to wishlist",
+    "remove": "Remove from wishlist",
+    "empty": "Nothing here yet — bookmark books while browsing."
+  },
   "borrowed": {
     "title": "Borrowed books",
     "subtitle": "What you are reading, and what you have read.",
     "since": "since {{date}}",
+    "due": "due {{date}}",
+    "overdue": "Overdue",
     "closed": "Closed",
     "waitingApproval": "Waiting for approval",
     "return": "Return",
     "empty": "You have not borrowed anything yet."
+  },
+  "reservations": {
+    "title": "My reservations",
+    "position": "Position {{position}} in queue",
+    "cancel": "Leave queue"
   },
   "returns": {
     "title": "Returns",
@@ -53,6 +89,11 @@
     "approved": "Approved",
     "approve": "Approve return",
     "empty": "No returns waiting."
+  },
+  "member": {
+    "since": "Member since {{date}}",
+    "shares": "{{count}} books on the shelf",
+    "shelfTitle": "Shared shelf"
   },
   "feedback": {
     "title": "Feedback",
@@ -68,6 +109,7 @@
     "title": "Title",
     "author": "Author",
     "isbn": "ISBN",
+    "genre": "Genre",
     "synopsis": "Synopsis",
     "shareable": "Share this book with the community",
     "save": "Save",
@@ -81,7 +123,11 @@
   "toasts": {
     "borrowed": "Enjoy the read — the book is yours for now.",
     "returned": "Returned. The owner will approve it shortly.",
-    "approved": "Return approved — the book is available again.",
+    "approved": "Return approved — the book moves on.",
+    "reserved": "You are in the queue.",
+    "reservationCanceled": "You left the queue.",
+    "wishlistAdded": "Added to your wishlist.",
+    "wishlistRemoved": "Removed from your wishlist.",
     "coverUploaded": "Cover updated.",
     "feedbackSaved": "Thanks for your feedback.",
     "bookSaved": "Book saved."
@@ -96,6 +142,10 @@
     "not_returned_yet": "The borrower has not returned it yet.",
     "not_owner": "Only the owner can do that.",
     "never_borrowed": "You can rate only books you have borrowed.",
+    "book_available": "This book is free — borrow it instead.",
+    "you_hold_it": "You are holding this book right now.",
+    "already_reserved": "You are already in the queue.",
+    "no_reservation": "You have no reservation on this book.",
     "cover_type_unsupported": "Covers must be JPEG, PNG or WebP images.",
     "not_found": "This book does not exist.",
     "unknown": "Something went wrong. Please try again."

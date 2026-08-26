@@ -5,7 +5,7 @@ import { Component, input, model } from '@angular/core';
  * input driven by the `value` model.
  */
 @Component({
-  selector: 'pt-star-rating',
+  selector: 'bn-star-rating',
   template: `
     <span class="inline-flex items-center gap-0.5" role="img" [attr.aria-label]="value() + ' / 5'">
       @for (star of stars; track star) {

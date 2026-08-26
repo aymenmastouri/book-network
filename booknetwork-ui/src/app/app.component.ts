@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 
@@ -23,9 +23,15 @@ import { ToastService } from './shared/toast.service';
             <a routerLink="/shelf" routerLinkActive="nav-active" class="nav-link">{{ t('nav.shelf') }}</a>
             <a routerLink="/borrowed" routerLinkActive="nav-active" class="nav-link">{{ t('nav.borrowed') }}</a>
             <a routerLink="/returns" routerLinkActive="nav-active" class="nav-link">{{ t('nav.returns') }}</a>
+            <a routerLink="/wishlist" routerLinkActive="nav-active" class="nav-link">{{ t('nav.wishlist') }}</a>
           </nav>
 
-          <div class="flex items-center gap-3 border-l border-shelf pl-4">
+          <div class="flex items-center gap-2 border-l border-shelf pl-4">
+            <button (click)="toggleTheme()"
+                    class="rounded px-2 py-1 text-sm text-ink-soft hover:bg-shelf"
+                    [attr.aria-label]="t('app.theme')">
+              {{ dark() ? '☀' : '☾' }}
+            </button>
             <button (click)="switchLang()"
                     class="rounded px-2 py-1 text-xs font-semibold uppercase text-ink-soft hover:bg-shelf"
                     [attr.aria-label]="t('app.language')">
@@ -67,6 +73,12 @@ export class AppComponent {
   protected readonly toast = inject(ToastService);
   private readonly transloco = inject(TranslocoService);
 
+  protected readonly dark = signal(localStorage.getItem('booknetwork.theme') === 'dark');
+
+  constructor() {
+    document.documentElement.classList.toggle('dark', this.dark());
+  }
+
   protected otherLang(): string {
     return this.transloco.getActiveLang() === 'en' ? 'de' : 'en';
   }
@@ -75,5 +87,11 @@ export class AppComponent {
     const next = this.otherLang();
     this.transloco.setActiveLang(next);
     localStorage.setItem('booknetwork.lang', next);
+  }
+
+  protected toggleTheme(): void {
+    this.dark.update((d) => !d);
+    document.documentElement.classList.toggle('dark', this.dark());
+    localStorage.setItem('booknetwork.theme', this.dark() ? 'dark' : 'light');
   }
 }

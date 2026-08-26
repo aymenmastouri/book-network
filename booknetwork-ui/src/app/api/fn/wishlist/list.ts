@@ -9,22 +9,16 @@ import { RequestBuilder } from '../../request-builder';
 
 import { PageResponseBookResponse } from '../../models/page-response-book-response';
 
-export interface Browse$Params {
+export interface List$Params {
   page?: number;
   size?: number;
-  q?: string;
-  genre?: 'CLASSIC' | 'CRIME' | 'SCIFI' | 'FANTASY' | 'ROMANCE' | 'HISTORY' | 'NONFICTION' | 'OTHER';
-  sort?: 'NEWEST' | 'RATING';
 }
 
-export function browse(http: HttpClient, rootUrl: string, params?: Browse$Params, context?: HttpContext): Observable<StrictHttpResponse<PageResponseBookResponse>> {
-  const rb = new RequestBuilder(rootUrl, browse.PATH, 'get');
+export function list(http: HttpClient, rootUrl: string, params?: List$Params, context?: HttpContext): Observable<StrictHttpResponse<PageResponseBookResponse>> {
+  const rb = new RequestBuilder(rootUrl, list.PATH, 'get');
   if (params) {
     rb.query('page', params.page, {});
     rb.query('size', params.size, {});
-    rb.query('q', params.q, {});
-    rb.query('genre', params.genre, {});
-    rb.query('sort', params.sort, {});
   }
 
   return http.request(
@@ -37,4 +31,4 @@ export function browse(http: HttpClient, rootUrl: string, params?: Browse$Params
   );
 }
 
-browse.PATH = '/books';
+list.PATH = '/wishlist';
