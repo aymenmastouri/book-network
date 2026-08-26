@@ -64,6 +64,18 @@
       "credentials": [
         { "type": "password", "value": "booknetwork", "temporary": false }
       ]
+    },
+    {
+      "id": "33333333-3333-3333-3333-333333333333",
+      "username": "carla@booknetwork.dev",
+      "email": "carla@booknetwork.dev",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Carla",
+      "lastName": "Mendes",
+      "credentials": [
+        { "type": "password", "value": "booknetwork", "temporary": false }
+      ]
     }
   ]
 }

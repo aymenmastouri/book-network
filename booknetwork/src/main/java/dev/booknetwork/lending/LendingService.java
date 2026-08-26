@@ -12,26 +12,41 @@ import dev.booknetwork.common.NotFoundException;
 import dev.booknetwork.common.PageResponse;
 import dev.booknetwork.lending.LoanRepository.LoanWithBook;
 import dev.booknetwork.lending.dto.LoanResponse;
+import dev.booknetwork.notify.MailNotifier;
+import dev.booknetwork.reservation.ReservationService;
 import dev.booknetwork.user.User;
+import dev.booknetwork.user.UserRepository;
 import dev.booknetwork.user.UserService;
 
 /**
- * The lending rules, in one place:
- * you cannot borrow your own book, an archived or unshared book, or a book
- * someone else is holding; only the borrower can return; only the owner can
- * approve the return, which is what frees the book again.
+ * The lending rules, in one place: you cannot borrow your own book, an
+ * archived or unshared book, or a book someone else is holding; only the
+ * borrower can return; only the owner can approve the return. Approval frees
+ * the book — unless someone queues, in which case the book is lent straight
+ * to the first reservation and its holder is told by mail.
  */
 @Service
 public class LendingService {
 
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
+    private final ReservationService reservationService;
+    private final MailNotifier mailNotifier;
 
-    public LendingService(LoanRepository loanRepository, BookRepository bookRepository, UserService userService) {
+    public LendingService(LoanRepository loanRepository,
+                          BookRepository bookRepository,
+                          UserRepository userRepository,
+                          UserService userService,
+                          ReservationService reservationService,
+                          MailNotifier mailNotifier) {
         this.loanRepository = loanRepository;
         this.bookRepository = bookRepository;
+        this.userRepository = userRepository;
         this.userService = userService;
+        this.reservationService = reservationService;
+        this.mailNotifier = mailNotifier;
     }
 
     @Transactional
@@ -48,7 +63,9 @@ public class LendingService {
         if (loanRepository.findByBookIdAndApprovedAtIsNull(bookId).isPresent()) {
             throw new BusinessRuleException("already_borrowed", "This book is currently borrowed");
         }
-        return loanRepository.save(new Loan(bookId, borrower.getId())).getId();
+        Loan loan = loanRepository.save(new Loan(bookId, borrower.getId()));
+        mailNotifier.borrowed(book.getOwner().getEmail(), book.getTitle(), borrower.fullName());
+        return loan.getId();
     }
 
     @Transactional
@@ -62,6 +79,8 @@ public class LendingService {
             throw new BusinessRuleException("already_returned", "You already returned this book");
         }
         loan.markReturned();
+        Book book = bookRepository.findById(bookId).orElseThrow();
+        mailNotifier.returned(book.getOwner().getEmail(), book.getTitle(), borrower.fullName());
     }
 
     @Transactional
@@ -78,6 +97,18 @@ public class LendingService {
             throw new BusinessRuleException("not_returned_yet", "The borrower has not returned this book yet");
         }
         loan.markApproved();
+        // The partial unique index allows one live loan per book. The approval
+        // UPDATE must reach the database before the next loan's INSERT, and
+        // Hibernate flushes inserts first — so flush explicitly in between.
+        loanRepository.flush();
+        userRepository.findById(loan.getBorrowerId())
+                .ifPresent(borrower -> mailNotifier.returnApproved(borrower.getEmail(), book.getTitle()));
+        reservationService.nextInLine(bookId).ifPresent(next -> {
+            loanRepository.save(new Loan(bookId, next.getUserId()));
+            reservationService.fulfill(next);
+            userRepository.findById(next.getUserId())
+                    .ifPresent(reserver -> mailNotifier.reservationFulfilled(reserver.getEmail(), book.getTitle()));
+        });
     }
 
     @Transactional(readOnly = true)
@@ -106,9 +137,11 @@ public class LendingService {
                 book.getAuthorName(),
                 book.getIsbn(),
                 loan.getBorrowedAt(),
+                loan.getDueAt(),
                 loan.getReturnedAt(),
                 loan.isReturned(),
                 loan.isApproved(),
+                loan.isOverdue(),
                 book.getCoverPath() != null
         );
     }

@@ -1,10 +1,7 @@
 package dev.booknetwork.catalog;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.UUID;
-
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -23,6 +20,9 @@ import dev.booknetwork.user.UserService;
 @Service
 public class BookService {
 
+    /** Browse sort orders the API accepts. */
+    public enum Sort { NEWEST, RATING }
+
     private final BookRepository bookRepository;
     private final UserService userService;
     private final CoverStorage coverStorage;
@@ -37,34 +37,40 @@ public class BookService {
     public Long create(BookRequest request, Jwt jwt) {
         User owner = userService.resolve(jwt);
         Book book = new Book(owner, request.title().trim(), request.authorName().trim(),
-                request.isbnOrEmpty().trim(), request.synopsisOrEmpty().trim(), request.shareable());
+                request.isbnOrEmpty().trim(), request.synopsisOrEmpty().trim(),
+                request.genreOrOther(), request.shareable());
         return bookRepository.save(book).getId();
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<BookResponse> browse(int page, int size, Jwt jwt) {
+    public PageResponse<BookResponse> browse(int page, int size, String q, Genre genre, Sort sort, Jwt jwt) {
         User user = userService.resolve(jwt);
         Pageable pageable = PageRequest.of(page, size);
-        return PageResponse.of(bookRepository.browse(user.getId(), pageable), s -> toResponse(s, user.getId()));
+        String query = q == null ? "" : q.trim().toLowerCase();
+        Page<BookWithStats> result = sort == Sort.RATING
+                ? bookRepository.browseByRating(user.getId(), query, genre, pageable)
+                : bookRepository.browseByNewest(user.getId(), query, genre, pageable);
+        return PageResponse.of(result, s -> BookMapper.toResponse(s, user.getId()));
     }
 
     @Transactional(readOnly = true)
     public PageResponse<BookResponse> mine(int page, int size, Jwt jwt) {
         User user = userService.resolve(jwt);
-        Pageable pageable = PageRequest.of(page, size);
-        return PageResponse.of(bookRepository.mine(user.getId(), pageable), s -> toResponse(s, user.getId()));
+        return PageResponse.of(
+                bookRepository.mine(user.getId(), PageRequest.of(page, size)),
+                s -> BookMapper.toResponse(s, user.getId()));
     }
 
     @Transactional(readOnly = true)
     public BookResponse get(Long id, Jwt jwt) {
         User user = userService.resolve(jwt);
-        BookWithStats stats = bookRepository.findWithStats(id)
+        BookWithStats stats = bookRepository.findWithStats(id, user.getId())
                 .orElseThrow(() -> new NotFoundException("Book " + id + " does not exist"));
         Book book = stats.getBook();
         if (book.isArchived() && !book.isOwnedBy(user.getId())) {
             throw new NotFoundException("Book " + id + " does not exist");
         }
-        return toResponse(stats, user.getId());
+        return BookMapper.toResponse(stats, user.getId());
     }
 
     @Transactional
@@ -74,6 +80,7 @@ public class BookService {
         book.setAuthorName(request.authorName().trim());
         book.setIsbn(request.isbnOrEmpty().trim());
         book.setSynopsis(request.synopsisOrEmpty().trim());
+        book.setGenre(request.genreOrOther());
         book.setShareable(request.shareable());
     }
 
@@ -120,26 +127,5 @@ public class BookService {
             throw new BusinessRuleException("not_owner", "Only the owner can change this book");
         }
         return book;
-    }
-
-    private static BookResponse toResponse(BookWithStats stats, UUID viewerId) {
-        Book book = stats.getBook();
-        double rating = stats.getRating() == null ? 0.0
-                : BigDecimal.valueOf(stats.getRating()).setScale(1, RoundingMode.HALF_UP).doubleValue();
-        boolean borrowed = Boolean.TRUE.equals(stats.getBorrowed());
-        return new BookResponse(
-                book.getId(),
-                book.getTitle(),
-                book.getAuthorName(),
-                book.getIsbn(),
-                book.getSynopsis(),
-                book.getOwner().fullName(),
-                book.isShareable(),
-                book.isArchived(),
-                rating,
-                borrowed,
-                book.isOwnedBy(viewerId),
-                book.getCoverPath() != null
-        );
     }
 }

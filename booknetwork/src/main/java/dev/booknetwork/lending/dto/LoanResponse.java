@@ -9,8 +9,10 @@ public record LoanResponse(
         String authorName,
         String isbn,
         OffsetDateTime borrowedAt,
+        OffsetDateTime dueAt,
         OffsetDateTime returnedAt,
         boolean returned,
         boolean approved,
+        boolean overdue,
         boolean hasCover
 ) {}

@@ -5,6 +5,8 @@ import java.time.OffsetDateTime;
 import dev.booknetwork.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,6 +42,10 @@ public class Book {
     @Column(name = "cover_path")
     private String coverPath;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Genre genre = Genre.OTHER;
+
     @Column(nullable = false)
     private boolean shareable = true;
 
@@ -53,12 +59,14 @@ public class Book {
         // JPA
     }
 
-    public Book(User owner, String title, String authorName, String isbn, String synopsis, boolean shareable) {
+    public Book(User owner, String title, String authorName, String isbn, String synopsis,
+                Genre genre, boolean shareable) {
         this.owner = owner;
         this.title = title;
         this.authorName = authorName;
         this.isbn = isbn;
         this.synopsis = synopsis;
+        this.genre = genre;
         this.shareable = shareable;
     }
 
@@ -94,6 +102,10 @@ public class Book {
         return coverPath;
     }
 
+    public Genre getGenre() {
+        return genre;
+    }
+
     public boolean isShareable() {
         return shareable;
     }
@@ -124,6 +136,10 @@ public class Book {
 
     public void setCoverPath(String coverPath) {
         this.coverPath = coverPath;
+    }
+
+    public void setGenre(Genre genre) {
+        this.genre = genre;
     }
 
     public void setShareable(boolean shareable) {

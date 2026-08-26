@@ -14,7 +14,8 @@ import jakarta.persistence.Table;
  * A loan references book and borrower by id only — no JPA relations across
  * module boundaries. Its lifecycle is three timestamps: borrowed, returned by
  * the borrower, approved by the owner. A loan is "live" until approval; the
- * database enforces at most one live loan per book with a partial unique index.
+ * database enforces at most one live loan per book with a partial unique
+ * index, and stamps the due date (three weeks) at insert.
  */
 @Entity
 @Table(name = "loans")
@@ -32,6 +33,9 @@ public class Loan {
 
     @Column(name = "borrowed_at", nullable = false, insertable = false, updatable = false)
     private OffsetDateTime borrowedAt;
+
+    @Column(name = "due_at", nullable = false, insertable = false, updatable = false)
+    private OffsetDateTime dueAt;
 
     @Column(name = "returned_at")
     private OffsetDateTime returnedAt;
@@ -56,6 +60,10 @@ public class Loan {
         return approvedAt != null;
     }
 
+    public boolean isOverdue() {
+        return !isReturned() && dueAt != null && OffsetDateTime.now().isAfter(dueAt);
+    }
+
     public void markReturned() {
         this.returnedAt = OffsetDateTime.now();
     }
@@ -78,6 +86,10 @@ public class Loan {
 
     public OffsetDateTime getBorrowedAt() {
         return borrowedAt;
+    }
+
+    public OffsetDateTime getDueAt() {
+        return dueAt;
     }
 
     public OffsetDateTime getReturnedAt() {

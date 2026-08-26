@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -33,16 +34,18 @@ public class BookController {
     }
 
     @PostMapping
-    public Long create(@Valid @org.springframework.web.bind.annotation.RequestBody BookRequest request,
-                       @AuthenticationPrincipal Jwt jwt) {
+    public Long create(@Valid @RequestBody BookRequest request, @AuthenticationPrincipal Jwt jwt) {
         return bookService.create(request, jwt);
     }
 
     @GetMapping
     public PageResponse<BookResponse> browse(@RequestParam(defaultValue = "0") int page,
                                              @RequestParam(defaultValue = "12") int size,
+                                             @RequestParam(defaultValue = "") String q,
+                                             @RequestParam(required = false) Genre genre,
+                                             @RequestParam(defaultValue = "NEWEST") BookService.Sort sort,
                                              @AuthenticationPrincipal Jwt jwt) {
-        return bookService.browse(page, size, jwt);
+        return bookService.browse(page, size, q, genre, sort, jwt);
     }
 
     @GetMapping("mine")
@@ -59,7 +62,7 @@ public class BookController {
 
     @PutMapping("{id}")
     public void update(@PathVariable Long id,
-                       @Valid @org.springframework.web.bind.annotation.RequestBody BookRequest request,
+                       @Valid @RequestBody BookRequest request,
                        @AuthenticationPrincipal Jwt jwt) {
         bookService.update(id, request, jwt);
     }
