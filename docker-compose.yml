@@ -1,0 +1,55 @@
+services:
+  postgres:
+    container_name: booknetwork-postgres
+    image: postgres:15
+    environment:
+      POSTGRES_USER: booknetwork
+      POSTGRES_PASSWORD: booknetwork
+      POSTGRES_DB: booknetwork
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "${BOOKNETWORK_PG_PORT:-5432}:5432"
+    networks:
+      - booknetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U booknetwork -d booknetwork"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  keycloak:
+    container_name: booknetwork-keycloak
+    image: quay.io/keycloak/keycloak:24.0.2
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command:
+      - "start-dev"
+      - "--import-realm"
+    volumes:
+      - ./keycloak/realm:/opt/keycloak/data/import:ro
+    ports:
+      - "${BOOKNETWORK_KC_PORT:-9090}:8080"
+    networks:
+      - booknetwork
+    restart: unless-stopped
+
+  maildev:
+    container_name: booknetwork-mail
+    image: maildev/maildev
+    ports:
+      - "${BOOKNETWORK_MAIL_UI_PORT:-1080}:1080"
+      - "${BOOKNETWORK_MAIL_SMTP_PORT:-1025}:1025"
+    networks:
+      - booknetwork
+    restart: unless-stopped
+
+networks:
+  booknetwork:
+    driver: bridge
+
+volumes:
+  postgres:
+    driver: local
