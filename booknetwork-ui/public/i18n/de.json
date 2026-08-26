@@ -1,0 +1,103 @@
+{
+  "app": {
+    "tagline": "teil dein Regal",
+    "language": "Sprache wechseln",
+    "greeting": "Willkommen, {{name}}",
+    "logout": "Abmelden"
+  },
+  "nav": {
+    "browse": "Stöbern",
+    "shelf": "Mein Regal",
+    "borrowed": "Ausgeliehen",
+    "returns": "Rückgaben"
+  },
+  "browse": {
+    "title": "Gemeinschaftsregal",
+    "subtitle": "Bücher, die deine Nachbarn gerade teilen.",
+    "empty": "Noch nichts im Regal — teil doch das erste Buch."
+  },
+  "book": {
+    "borrow": "Ausleihen",
+    "sharedBy": "geteilt von {{name}}"
+  },
+  "status": {
+    "available": "Verfügbar",
+    "borrowed": "Verliehen",
+    "archived": "Archiviert"
+  },
+  "shelf": {
+    "title": "Mein Regal",
+    "subtitle": "Die Bücher, die du mit der Gemeinschaft teilst.",
+    "add": "Buch hinzufügen",
+    "edit": "Bearbeiten",
+    "share": "Teilen",
+    "unshare": "Nicht mehr teilen",
+    "archive": "Archivieren",
+    "restore": "Zurückholen",
+    "cover": "Cover…",
+    "empty": "Dein Regal ist leer. Stell dein erstes Buch hinein."
+  },
+  "borrowed": {
+    "title": "Ausgeliehene Bücher",
+    "subtitle": "Was du gerade liest — und was du gelesen hast.",
+    "since": "seit {{date}}",
+    "closed": "Abgeschlossen",
+    "waitingApproval": "Wartet auf Bestätigung",
+    "return": "Zurückgeben",
+    "empty": "Du hast noch nichts ausgeliehen."
+  },
+  "returns": {
+    "title": "Rückgaben",
+    "subtitle": "Deine Bücher kommen heim — bestätige, um sie wieder freizugeben.",
+    "returnedOn": "zurückgegeben am {{date}}",
+    "approved": "Bestätigt",
+    "approve": "Rückgabe bestätigen",
+    "empty": "Keine Rückgaben offen."
+  },
+  "feedback": {
+    "title": "Feedback",
+    "yourRating": "Deine Bewertung",
+    "placeholder": "Wie fandest du es?",
+    "submit": "Feedback abschicken",
+    "you": "Du",
+    "empty": "Noch kein Feedback."
+  },
+  "form": {
+    "newTitle": "Buch hinzufügen",
+    "editTitle": "Buch bearbeiten",
+    "title": "Titel",
+    "author": "Autor·in",
+    "isbn": "ISBN",
+    "synopsis": "Kurzbeschreibung",
+    "shareable": "Dieses Buch mit der Gemeinschaft teilen",
+    "save": "Speichern",
+    "cancel": "Abbrechen"
+  },
+  "paging": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "of": "Seite {{page}} von {{total}}"
+  },
+  "toasts": {
+    "borrowed": "Viel Freude beim Lesen — das Buch ist vorerst deins.",
+    "returned": "Zurückgegeben. Der Besitzer bestätigt es gleich.",
+    "approved": "Rückgabe bestätigt — das Buch ist wieder verfügbar.",
+    "coverUploaded": "Cover aktualisiert.",
+    "feedbackSaved": "Danke für dein Feedback.",
+    "bookSaved": "Buch gespeichert."
+  },
+  "errors": {
+    "own_book": "Das ist dein eigenes Buch.",
+    "not_shareable": "Dieses Buch ist nicht zum Ausleihen freigegeben.",
+    "already_borrowed": "Dieses Buch liest gerade jemand anderes.",
+    "not_borrowed_by_you": "Du hast keine offene Ausleihe für dieses Buch.",
+    "already_returned": "Du hast dieses Buch schon zurückgegeben.",
+    "no_open_loan": "Für dieses Buch gibt es keine offene Ausleihe.",
+    "not_returned_yet": "Es wurde noch nicht zurückgegeben.",
+    "not_owner": "Das darf nur der Besitzer.",
+    "never_borrowed": "Bewerte nur Bücher, die du ausgeliehen hast.",
+    "cover_type_unsupported": "Cover müssen JPEG-, PNG- oder WebP-Bilder sein.",
+    "not_found": "Dieses Buch gibt es nicht.",
+    "unknown": "Da ist etwas schiefgelaufen. Bitte versuch es erneut."
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "app": {
+    "tagline": "share your shelf",
+    "language": "Switch language",
+    "greeting": "Welcome, {{name}}",
+    "logout": "Sign out"
+  },
+  "nav": {
+    "browse": "Browse",
+    "shelf": "My shelf",
+    "borrowed": "Borrowed",
+    "returns": "Returns"
+  },
+  "browse": {
+    "title": "Community shelf",
+    "subtitle": "Books your neighbours are sharing right now.",
+    "empty": "Nothing on the shelf yet — be the first to share a book."
+  },
+  "book": {
+    "borrow": "Borrow",
+    "sharedBy": "shared by {{name}}"
+  },
+  "status": {
+    "available": "Available",
+    "borrowed": "Borrowed",
+    "archived": "Archived"
+  },
+  "shelf": {
+    "title": "My shelf",
+    "subtitle": "The books you share with the community.",
+    "add": "Add a book",
+    "edit": "Edit",
+    "share": "Share",
+    "unshare": "Stop sharing",
+    "archive": "Archive",
+    "restore": "Restore",
+    "cover": "Cover…",
+    "empty": "Your shelf is empty. Add your first book."
+  },
+  "borrowed": {
+    "title": "Borrowed books",
+    "subtitle": "What you are reading, and what you have read.",
+    "since": "since {{date}}",
+    "closed": "Closed",
+    "waitingApproval": "Waiting for approval",
+    "return": "Return",
+    "empty": "You have not borrowed anything yet."
+  },
+  "returns": {
+    "title": "Returns",
+    "subtitle": "Your books coming home — approve to free them up again.",
+    "returnedOn": "returned {{date}}",
+    "approved": "Approved",
+    "approve": "Approve return",
+    "empty": "No returns waiting."
+  },
+  "feedback": {
+    "title": "Feedback",
+    "yourRating": "Your rating",
+    "placeholder": "What did you think?",
+    "submit": "Post feedback",
+    "you": "You",
+    "empty": "No feedback yet."
+  },
+  "form": {
+    "newTitle": "Add a book",
+    "editTitle": "Edit book",
+    "title": "Title",
+    "author": "Author",
+    "isbn": "ISBN",
+    "synopsis": "Synopsis",
+    "shareable": "Share this book with the community",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "paging": {
+    "previous": "Previous",
+    "next": "Next",
+    "of": "Page {{page}} of {{total}}"
+  },
+  "toasts": {
+    "borrowed": "Enjoy the read — the book is yours for now.",
+    "returned": "Returned. The owner will approve it shortly.",
+    "approved": "Return approved — the book is available again.",
+    "coverUploaded": "Cover updated.",
+    "feedbackSaved": "Thanks for your feedback.",
+    "bookSaved": "Book saved."
+  },
+  "errors": {
+    "own_book": "That is your own book.",
+    "not_shareable": "This book is not available for borrowing.",
+    "already_borrowed": "Someone else is reading this book right now.",
+    "not_borrowed_by_you": "You have no open loan on this book.",
+    "already_returned": "You already returned this book.",
+    "no_open_loan": "This book has no open loan.",
+    "not_returned_yet": "The borrower has not returned it yet.",
+    "not_owner": "Only the owner can do that.",
+    "never_borrowed": "You can rate only books you have borrowed.",
+    "cover_type_unsupported": "Covers must be JPEG, PNG or WebP images.",
+    "not_found": "This book does not exist.",
+    "unknown": "Something went wrong. Please try again."
+  }
+}

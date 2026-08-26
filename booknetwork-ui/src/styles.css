@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* BookNetwork design tokens: warm paper, dark ink, bronze accent. */
+@theme {
+  --color-paper: #faf6ef;
+  --color-card: #fffdf9;
+  --color-ink: #26221c;
+  --color-ink-soft: #6b6257;
+  --color-brand: #9a5b1f;
+  --color-brand-deep: #7c4a19;
+  --color-shelf: #efe7da;
+  --color-ok: #3f6f4f;
+  --color-warn: #a04b3c;
+  --font-display: "Iowan Old Style", "Palatino", "Georgia", serif;
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
