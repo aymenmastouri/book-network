@@ -26,6 +26,11 @@ function card(page: Page) {
   return page.locator('article').filter({ hasText: BOOK });
 }
 
+/** The shelf paginates, so find the book through search — page-independent. */
+async function searchFor(page: Page): Promise<void> {
+  await page.getByPlaceholder('Search title or author…').fill(BOOK);
+}
+
 interface LoanRow {
   title?: string;
   returned?: boolean;
@@ -81,15 +86,18 @@ test('the queue hands a returned book to the next reader', async ({ browser }) =
 
   // Ben borrows Alice's book.
   await ben.getByRole('link', { name: 'Browse' }).click();
+  await searchFor(ben);
   await card(ben).getByRole('button', { name: 'Borrow' }).click();
-  await expect(card(ben).getByText('Borrowed')).toBeVisible();
+  await expect(card(ben).getByText('With you')).toBeVisible();
 
   // Carla queues for it and sees her position.
   await carla.getByRole('link', { name: 'Browse' }).click();
+  await searchFor(carla);
   await card(carla).getByRole('button', { name: 'Reserve' }).click();
   await expect(card(carla).getByRole('button', { name: 'Leave queue' })).toBeVisible();
   await carla.getByRole('link', { name: 'Borrowed' }).click();
-  await expect(carla.getByText('Position 1 in queue')).toBeVisible();
+  await expect(carla.locator('li').filter({ hasText: BOOK })
+    .getByText('Position 1 in queue')).toBeVisible();
 
   // Ben returns; Alice approves — and the book flows on to Carla by itself.
   await returnIfHeld(ben);
@@ -113,6 +121,7 @@ test('the queue hands a returned book to the next reader', async ({ browser }) =
   await returnIfHeld(carla);
   await approveIfPending(alice);
   const ben2 = await signIn(browser, 'ben@booknetwork.dev');
+  await searchFor(ben2);
   await expect(card(ben2).getByText('Available')).toBeVisible();
 
   await ben.context().close();

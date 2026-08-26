@@ -24,13 +24,19 @@ function card(page: Page) {
   return page.locator('article').filter({ hasText: BOOK });
 }
 
+/** The shelf paginates, so find the book through search — page-independent. */
+async function searchFor(page: Page): Promise<void> {
+  await page.getByPlaceholder('Search title or author…').fill(BOOK);
+  await expect(card(page)).toBeVisible();
+}
+
 test('a book travels from shelf to reader and home again', async ({ browser }) => {
   const alice = await signIn(browser, 'alice@booknetwork.dev');
 
   // Alice finds Ben's book on the community shelf and borrows it.
-  await expect(card(alice)).toBeVisible();
+  await searchFor(alice);
   await card(alice).getByRole('button', { name: 'Borrow' }).click();
-  await expect(card(alice).getByText('Borrowed')).toBeVisible();
+  await expect(card(alice).getByText('With you')).toBeVisible();
 
   // It shows up under her borrowed books; she returns it.
   await alice.getByRole('link', { name: 'Borrowed' }).click();
@@ -47,6 +53,7 @@ test('a book travels from shelf to reader and home again', async ({ browser }) =
 
   // Approval frees the book: Alice can see it as available again.
   await alice.getByRole('link', { name: 'Browse' }).click();
+  await searchFor(alice);
   await expect(card(alice).getByText('Available')).toBeVisible();
 
   await alice.context().close();
