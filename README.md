@@ -11,13 +11,22 @@ only frees a book once its owner approves it.
 ![Keycloak 24](https://img.shields.io/badge/Keycloak-24-4d4d4d)
 ![Playwright](https://img.shields.io/badge/E2E-Playwright-2ead33)
 
-The interface speaks English and German and switches at runtime, without a
-reload. Business rules surface as machine-readable codes that the UI
-translates — the backend never ships display text.
+Beyond the lending core, members search and filter the shelf by genre, sort
+by rating, bookmark books on a wishlist, browse each other's shelves, and
+queue for borrowed books — when the owner approves a return, the book is lent
+straight to the first reservation and its holder is told by mail. Loans carry
+a three-week due date and show up as overdue when it passes. The interface
+speaks English and German and switches at runtime, without a reload; a dark
+theme is one click away. Business rules surface as machine-readable codes
+that the UI translates — the backend never ships display text.
 
-| Community shelf | Book detail with feedback | Runtime language switch |
-| --- | --- | --- |
-| ![Community shelf](docs/screenshots/community-shelf.png) | ![Book detail](docs/screenshots/book-detail.png) | ![My shelf in German](docs/screenshots/my-shelf-de.png) |
+| Community shelf | Book detail with feedback |
+| --- | --- |
+| ![Community shelf](docs/screenshots/community-shelf.png) | ![Book detail](docs/screenshots/book-detail.png) |
+
+| Runtime language switch | Dark theme |
+| --- | --- |
+| ![My shelf in German](docs/screenshots/my-shelf-de.png) | ![Dark mode](docs/screenshots/dark-mode.png) |
 
 ## Architecture
 
@@ -60,11 +69,19 @@ development value, not a secret.
 
 ## Domain rules
 
-A book can be lent to one member at a time. Members cannot borrow or rate
-their own books, only the borrower can return a loan, only the owner can
+A book can be lent to one member at a time. Members cannot borrow, reserve or
+rate their own books, only the borrower can return a loan, only the owner can
 approve the return, and feedback is reserved for members who actually
-borrowed the book. Violations answer with `409` and a stable code
-(`already_borrowed`, `never_borrowed`, `not_owner`, …).
+borrowed the book. Reserving is only possible while someone else holds the
+book — a free book is simply borrowed — and each member holds at most one
+place per queue, enforced by a partial unique index just like the single live
+loan per book. Violations answer with `409` and a stable code
+(`already_borrowed`, `never_borrowed`, `book_available`, `not_owner`, …).
+
+Notifications are plain mail, sent best-effort so a failing SMTP never breaks
+the business operation: the owner hears about borrows and returns, the
+borrower about approvals, and the first in the queue when a book becomes
+theirs. Locally everything lands in MailDev.
 
 ## API
 
@@ -79,9 +96,12 @@ generated from — regenerate with `npx ng-openapi-gen` after API changes.
 cd booknetwork-e2e && npm ci && npx playwright install chromium && npm test
 ```
 
-The Playwright suite drives the full lending arc through real Keycloak
-logins — Alice borrows Ben's book, returns it, Ben approves — and leaves the
-data exactly as it found it, so it can run repeatedly against the same stack.
+The Playwright suite drives the app through real Keycloak logins: the full
+lending arc, the reservation queue with all three members (including the
+automatic hand-over and its notification mail), and the discovery loop of
+search, genre filter and wishlist. Every spec restores the state it found and
+heals leftovers of a crashed earlier run, so the suite can run repeatedly
+against the same stack.
 
 ## Repository layout
 
