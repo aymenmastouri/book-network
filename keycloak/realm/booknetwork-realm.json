@@ -76,6 +76,18 @@
       "credentials": [
         { "type": "password", "value": "booknetwork", "temporary": false }
       ]
+    },
+    {
+      "id": "44444444-4444-4444-4444-444444444444",
+      "username": "aymen@booknetwork.dev",
+      "email": "aymen@booknetwork.dev",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Aymen",
+      "lastName": "Mastouri",
+      "credentials": [
+        { "type": "password", "value": "booknetwork", "temporary": false }
+      ]
     }
   ]
 }
