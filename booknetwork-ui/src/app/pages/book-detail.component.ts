@@ -41,7 +41,7 @@ import { ToastService } from '../shared/toast.service';
                 {{ t('book.borrow') }}
               </button>
             }
-            @if (!b.mine && b.borrowed && !b.reservedByMe) {
+            @if (!b.mine && b.borrowed && !b.reservedByMe && !b.borrowedByMe) {
               <button (click)="reserveThis()"
                       class="mt-4 w-full rounded-md border border-brand px-4 py-2 font-medium text-brand-deep hover:bg-shelf">
                 {{ t('book.reserve') }}
@@ -60,7 +60,11 @@ import { ToastService } from '../shared/toast.service';
                 {{ b.wishlisted ? '♥ ' + t('wishlist.remove') : '♡ ' + t('wishlist.add') }}
               </button>
             }
-            @if (b.borrowed) {
+            @if (b.borrowedByMe) {
+              <p class="mt-4 rounded-md bg-ok/10 px-3 py-2 text-center text-sm text-ok">
+                {{ t('status.withYou') }}
+              </p>
+            } @else if (b.borrowed) {
               <p class="mt-4 rounded-md bg-warn/10 px-3 py-2 text-center text-sm text-warn">
                 {{ t('status.borrowed') }}
                 @if (b.queueLength) {

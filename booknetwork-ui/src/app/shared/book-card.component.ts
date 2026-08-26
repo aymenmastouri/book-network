@@ -43,7 +43,11 @@ import { StarRatingComponent } from './star-rating.component';
                class="font-display text-base font-semibold leading-snug hover:text-brand-deep">
               {{ book().title }}
             </a>
-            @if (book().borrowed) {
+            @if (book().borrowedByMe) {
+              <span class="shrink-0 rounded-full bg-ok/10 px-2 py-0.5 text-xs font-medium text-ok">
+                {{ t('status.withYou') }}
+              </span>
+            } @else if (book().borrowed) {
               <span class="shrink-0 rounded-full bg-warn/10 px-2 py-0.5 text-xs font-medium text-warn">
                 {{ t('status.borrowed') }}
               </span>

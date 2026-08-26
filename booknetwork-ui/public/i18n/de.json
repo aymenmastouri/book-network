@@ -45,7 +45,8 @@
   "status": {
     "available": "Verfügbar",
     "borrowed": "Verliehen",
-    "archived": "Archiviert"
+    "archived": "Archiviert",
+    "withYou": "Bei dir"
   },
   "shelf": {
     "title": "Mein Regal",

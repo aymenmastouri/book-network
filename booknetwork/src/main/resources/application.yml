@@ -26,6 +26,12 @@ spring:
   mail:
     host: ${BOOKNETWORK_MAIL_HOST:localhost}
     port: ${BOOKNETWORK_MAIL_PORT:1025}
+    properties:
+      mail:
+        smtp:
+          connectiontimeout: 3000
+          timeout: 3000
+          writetimeout: 3000
 
 server:
   port: ${BOOKNETWORK_API_PORT:8088}

@@ -15,6 +15,7 @@ public record BookResponse(
         boolean archived,
         double rating,
         boolean borrowed,
+        boolean borrowedByMe,
         boolean mine,
         boolean hasCover,
         boolean wishlisted,

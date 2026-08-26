@@ -23,6 +23,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             select b as book,
                    (select avg(f.rating) from Feedback f where f.bookId = b.id) as rating,
                    (select count(l) > 0 from Loan l where l.bookId = b.id and l.approvedAt is null) as borrowed,
+                   (select count(l) > 0 from Loan l where l.bookId = b.id and l.approvedAt is null
+                        and l.borrowerId = :userId) as borrowedByMe,
                    (select count(w) > 0 from Wishlist w where w.bookId = b.id and w.userId = :userId) as wishlisted,
                    (select count(r) > 0 from Reservation r where r.bookId = b.id and r.userId = :userId
                         and r.fulfilledAt is null and r.canceledAt is null) as reservedByMe,
@@ -42,6 +44,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
         Book getBook();
         Double getRating();
         Boolean getBorrowed();
+        Boolean getBorrowedByMe();
         Boolean getWishlisted();
         Boolean getReservedByMe();
         Long getQueueLength();

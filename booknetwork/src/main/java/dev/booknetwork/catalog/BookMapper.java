@@ -30,6 +30,7 @@ public final class BookMapper {
                 book.isArchived(),
                 rating,
                 Boolean.TRUE.equals(stats.getBorrowed()),
+                Boolean.TRUE.equals(stats.getBorrowedByMe()),
                 book.isOwnedBy(viewerId),
                 book.getCoverPath() != null,
                 Boolean.TRUE.equals(stats.getWishlisted()),

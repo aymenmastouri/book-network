@@ -45,7 +45,8 @@
   "status": {
     "available": "Available",
     "borrowed": "Borrowed",
-    "archived": "Archived"
+    "archived": "Archived",
+    "withYou": "With you"
   },
   "shelf": {
     "title": "My shelf",

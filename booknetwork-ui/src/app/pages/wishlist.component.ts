@@ -30,7 +30,7 @@ import { ToastService } from '../shared/toast.service';
                           class="w-full rounded-md bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-deep">
                     {{ t('book.borrow') }}
                   </button>
-                } @else if (book.borrowed && !book.reservedByMe) {
+                } @else if (book.borrowed && !book.reservedByMe && !book.borrowedByMe) {
                   <button (click)="reserveBook(book.id!)"
                           class="w-full rounded-md border border-brand px-3 py-1.5 text-sm font-medium text-brand-deep hover:bg-shelf">
                     {{ t('book.reserve') }}
