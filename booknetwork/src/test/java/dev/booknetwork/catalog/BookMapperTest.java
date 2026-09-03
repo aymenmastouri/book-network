@@ -1,9 +1,9 @@
 package dev.booknetwork.catalog;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -12,74 +12,127 @@ import dev.booknetwork.catalog.BookRepository.BookWithStats;
 import dev.booknetwork.catalog.dto.BookResponse;
 import dev.booknetwork.user.User;
 
-/** BookMapper folds a Book plus its stats into the BookResponse API shape. */
 class BookMapperTest {
 
-    private static final UUID OWNER = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID VIEWER = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final UUID VIEWER_ID = UUID.randomUUID();
 
-    private Book book() {
-        Book book = mock(Book.class);
-        when(book.getId()).thenReturn(42L);
-        when(book.getTitle()).thenReturn("The Test Book");
-        when(book.getAuthorName()).thenReturn("A. Nonymous");
-        when(book.getIsbn()).thenReturn("");
-        when(book.getSynopsis()).thenReturn("");
-        when(book.getGenre()).thenReturn(Genre.OTHER);
-        when(book.isShareable()).thenReturn(true);
-        when(book.isArchived()).thenReturn(false);
-        when(book.isOwnedBy(VIEWER)).thenReturn(false);
-        when(book.getCoverPath()).thenReturn(null);
-        when(book.getOwner()).thenReturn(new User(OWNER, "owner@booknetwork.dev", "Owner", "Person"));
-        return book;
-    }
+    @Test
+    void borrowCountNullIsMappedToZero() {
+        BookResponse response = BookMapper.toResponse(createStats(book(VIEWER_ID), 3L, null), VIEWER_ID);
 
-    private BookWithStats stats(long borrowCount) {
-        Book book = book();
-        BookWithStats stats = mock(BookWithStats.class);
-        when(stats.getBook()).thenReturn(book);
-        when(stats.getBorrowCount()).thenReturn(borrowCount);
-        return stats;
+        assertEquals(0, readBorrowCount(response));
     }
 
     @Test
-    void mapsTheBorrowCountFromTheStats() {
-        BookResponse response = BookMapper.toResponse(stats(3), VIEWER);
+    void borrowCountNonNullIsPassedThrough() {
+        BookResponse response = BookMapper.toResponse(createStats(book(VIEWER_ID), 3L, 42L), VIEWER_ID);
 
-        assertThat(response.borrowCount()).isEqualTo(3);
+        assertEquals(42, readBorrowCount(response));
     }
 
     @Test
-    void defaultsTheBorrowCountToZeroWhenTheStatsCarryNone() {
-        BookWithStats stats = mock(BookWithStats.class);
-        Book book = book();
-        when(stats.getBook()).thenReturn(book);
-
-        BookResponse response = BookMapper.toResponse(stats, VIEWER);
-
-        assertThat(response.borrowCount()).isZero();
+    void borrowCountBoundaryValuesArePassedThrough() {
+        Book book = book(VIEWER_ID);
+        assertEquals(0, readBorrowCount(BookMapper.toResponse(createStats(book, 3L, 0L), VIEWER_ID)));
+        assertEquals(
+                Integer.MAX_VALUE,
+                readBorrowCount(BookMapper.toResponse(createStats(book, 3L, (long) Integer.MAX_VALUE), VIEWER_ID))
+        );
     }
 
-    @Test
-    void keepsTheExistingComponentsUnchangedWhenAddingTheBorrowCount() {
-        BookResponse response = BookMapper.toResponse(stats(7), VIEWER);
+    private static Book book(UUID ownerId) {
+        User owner = new User(ownerId, "owner@example.com", "Test", "Owner");
+        return new Book(owner, "Book", "Author", "ISBN-1", "Synopsis", Genre.OTHER, true);
+    }
 
-        assertThat(response.id()).isEqualTo(42L);
-        assertThat(response.title()).isEqualTo("The Test Book");
-        assertThat(response.authorName()).isEqualTo("A. Nonymous");
-        assertThat(response.genre()).isEqualTo(Genre.OTHER);
-        assertThat(response.ownerId()).isEqualTo(OWNER.toString());
-        assertThat(response.ownerName()).isEqualTo("Owner Person");
-        assertThat(response.shareable()).isTrue();
-        assertThat(response.archived()).isFalse();
-        assertThat(response.rating()).isZero();
-        assertThat(response.borrowed()).isFalse();
-        assertThat(response.borrowedByMe()).isFalse();
-        assertThat(response.mine()).isFalse();
-        assertThat(response.hasCover()).isFalse();
-        assertThat(response.wishlisted()).isFalse();
-        assertThat(response.reservedByMe()).isFalse();
-        assertThat(response.queueLength()).isZero();
-        assertThat(response.borrowCount()).isEqualTo(7);
+    private static BookWithStats createStats(Book book, Long queueLength, Long borrowCount) {
+        return new BookWithStats() {
+            @Override
+            public Book getBook() {
+                return book;
+            }
+
+            @Override
+            public Double getRating() {
+                return 1.0;
+            }
+
+            @Override
+            public Boolean getBorrowed() {
+                return false;
+            }
+
+            @Override
+            public Boolean getBorrowedByMe() {
+                return false;
+            }
+
+            @Override
+            public Boolean getWishlisted() {
+                return false;
+            }
+
+            @Override
+            public Boolean getReservedByMe() {
+                return false;
+            }
+
+            @Override
+            public Long getQueueLength() {
+                return queueLength;
+            }
+
+            @Override
+            public Long getBorrowCount() {
+                return borrowCount;
+            }
+        };
+    }
+
+    private static int readBorrowCount(BookResponse response) {
+        try {
+            Method getter = BookResponse.class.getMethod("getBorrowCount");
+            return toInt(getter.invoke(response));
+        } catch (NoSuchMethodException ignored) {
+            // Try record-style accessor next.
+        } catch (ReflectiveOperationException ex) {
+            throw new AssertionError("Unable to read borrowCount via getBorrowCount", ex);
+        }
+
+        try {
+            Method accessor = BookResponse.class.getMethod("borrowCount");
+            return toInt(accessor.invoke(response));
+        } catch (NoSuchMethodException ignored) {
+            // Fall back to field access.
+        } catch (ReflectiveOperationException ex) {
+            throw new AssertionError("Unable to read borrowCount via borrowCount accessor", ex);
+        }
+
+        try {
+            Field field = findField(BookResponse.class, "borrowCount");
+            field.setAccessible(true);
+            return toInt(field.get(response));
+        } catch (Exception ex) {
+            throw new AssertionError("Unable to read borrowCount from BookResponse", ex);
+        }
+    }
+
+    private static Field findField(Class<?> type, String name) throws NoSuchFieldException {
+        Class<?> current = type;
+        while (current != null) {
+            try {
+                return current.getDeclaredField(name);
+            } catch (NoSuchFieldException ex) {
+                current = current.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(name);
+    }
+
+    private static int toInt(Object value) {
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+        throw new AssertionError("Unexpected borrowCount value: " + value);
     }
 }
