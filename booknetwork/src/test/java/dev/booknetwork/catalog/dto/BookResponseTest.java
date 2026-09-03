@@ -1,75 +1,93 @@
 package dev.booknetwork.catalog.dto;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import dev.booknetwork.catalog.Genre;
+
+import java.lang.reflect.RecordComponent;
 
 import org.junit.jupiter.api.Test;
 
 class BookResponseTest {
 
-    private BookResponse bookWithBorrowCount(long borrowCount) {
+    private static BookResponse response(long queueLength, long borrowCount) {
         return new BookResponse(
-                1L,
-                "The Silent Archive",
-                "Jordan Blake",
-                "978-1-56619-909-4",
-                "A mystery set in a hidden library.",
-                null,
+                100L,
+                "Dune",
+                "Frank Herbert",
+                "978-0-441-17271-9",
+                "An epic science fiction adventure",
+                (Genre) null,
                 "owner-1",
                 "Owner One",
                 true,
                 false,
-                4.5,
+                4.7,
                 false,
                 true,
-                true,
+                false,
                 true,
                 false,
                 false,
-                3L,
+                queueLength,
                 borrowCount
         );
     }
 
     @Test
-    void borrowCountAccessorReturnsSuppliedValue() {
-        BookResponse response = bookWithBorrowCount(42L);
+    void borrowCountIsReturnedFromAccessor() {
+        BookResponse actual = response(3L, 42L);
 
-        assertEquals(42L, response.borrowCount());
+        assertEquals(42L, actual.borrowCount());
     }
 
     @Test
-    void borrowCountSupportsBoundaryValues() {
-        long[] values = {
-                0L,
-                1L,
-                -1L,
-                Long.MIN_VALUE,
-                Long.MAX_VALUE
-        };
-
-        for (long value : values) {
-            BookResponse response = bookWithBorrowCount(value);
-
-            assertEquals(value, response.borrowCount());
-        }
+    void borrowCountBoundaryValuesArePreserved() {
+        assertEquals(0L, response(0L, 0L).borrowCount());
+        assertEquals(Long.MAX_VALUE, response(0L, Long.MAX_VALUE).borrowCount());
+        assertEquals(Long.MIN_VALUE, response(0L, Long.MIN_VALUE).borrowCount());
     }
 
     @Test
-    void borrowCountParticipatesInEqualityAndHashCode() {
-        BookResponse first = bookWithBorrowCount(7L);
-        BookResponse same = bookWithBorrowCount(7L);
-        BookResponse different = bookWithBorrowCount(8L);
+    void borrowCountDistinguishesEqualObjects() {
+        BookResponse first = response(5L, 10L);
+        BookResponse second = response(5L, 10L);
+        BookResponse different = response(5L, 11L);
 
-        assertEquals(first, same);
-        assertEquals(first.hashCode(), same.hashCode());
+        assertEquals(first, second);
+        assertEquals(first.hashCode(), second.hashCode());
         assertNotEquals(first, different);
-        assertNotEquals(same, different);
+        assertNotEquals(first, null);
     }
 
     @Test
-    void borrowCountIsAccessibleWithNullOptionalFields() {
-        BookResponse response = new BookResponse(
+    void borrowCountAppearsInToString() {
+        BookResponse actual = response(7L, 99L);
+
+        assertTrue(actual.toString().contains("borrowCount=99"));
+    }
+
+    @Test
+    void borrowCountComponentIsDeclaredAsLong() {
+        boolean found = false;
+
+        for (RecordComponent component : BookResponse.class.getRecordComponents()) {
+            if ("borrowCount".equals(component.getName())) {
+                found = true;
+                assertEquals(long.class, component.getType());
+                break;
+            }
+        }
+
+        assertTrue(found);
+    }
+
+    @Test
+    void borrowCountWorksWhenReferenceFieldsAreNull() {
+        BookResponse actual = new BookResponse(
                 null,
                 null,
                 null,
@@ -88,10 +106,12 @@ class BookResponseTest {
                 false,
                 false,
                 0L,
-                12L
+                1L
         );
 
-        assertNotEquals(null, response);
-        assertEquals(12L, response.borrowCount());
+        assertEquals(1L, actual.borrowCount());
+        assertDoesNotThrow(actual::toString);
+        assertNotEquals(actual, null);
+        assertDoesNotThrow(() -> actual.equals(actual));
     }
 }

@@ -1,85 +1,96 @@
 package dev.booknetwork.catalog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.data.jpa.repository.Query;
 
 class BookRepositoryTest {
 
-    private static final String STATS_START_FRAGMENT = "select b as book";
-    private static final String BORROW_COUNT_FRAGMENT =
-            "select count(l) from Loan l where l.bookId = b.id) as borrowCount";
+    private static final String BORROW_COUNT_SUBSELECT =
+            "(select count(l) from Loan l where l.bookId = b.id) as borrowCount";
 
     @Test
-    void statsProjectionIncludesBorrowCount() {
-        String normalized = normalize(BookRepository.STATS);
+    void statsContainsNewBorrowCountColumn() {
+        String stats = BookRepository.STATS;
 
-        assertTrue(normalized.contains(BORROW_COUNT_FRAGMENT),
-                "STATS should include the borrowCount scalar subselect, but was: " + normalized);
+        assertNotNull(stats);
+        assertFalse(stats.isBlank());
+        assertTrue(stats.contains(BORROW_COUNT_SUBSELECT));
     }
 
     @Test
-    void everyStatBasedQueryIncludesBorrowCount() throws Exception {
-        List<String> missing = new ArrayList<>();
-        int statQueries = 0;
+    void statsAppendsBorrowCountAfterQueueLength() {
+        String stats = BookRepository.STATS;
 
-        for (Method method : BookRepository.class.getDeclaredMethods()) {
-            Query query = method.getAnnotation(Query.class);
-            if (query == null) {
-                continue;
-            }
+        int queueLength = stats.indexOf("as queueLength");
+        int borrowCount = stats.indexOf("as borrowCount");
 
-            String normalized = normalize(joinQueryValues(query));
-            if (!normalized.contains(STATS_START_FRAGMENT)) {
-                continue;
-            }
-
-            statQueries++;
-            if (!normalized.contains(BORROW_COUNT_FRAGMENT)) {
-                missing.add(method.getName());
-            }
-        }
-
-        assertTrue(statQueries > 0, "Expected at least one query built from STATS.");
-        assertTrue(missing.isEmpty(), "Queries missing borrowCount projection: " + missing);
+        assertTrue(queueLength >= 0, "queueLength should remain in STATS");
+        assertTrue(borrowCount > queueLength, "borrowCount should be added after queueLength");
     }
 
     @Test
-    void bookWithStatsExposesBorrowCount() throws NoSuchMethodException {
+    void statsContainsBorrowCountAliasOnlyOnce() {
+        assertEquals(1, countOccurrences(BookRepository.STATS, "as borrowCount"));
+    }
+
+    @Test
+    void borrowCountCountsAllLoansForBook() {
+        String stats = BookRepository.STATS;
+
+        int start = stats.indexOf("select count(l) from Loan l where l.bookId = b.id) as borrowCount");
+        assertTrue(start >= 0, "borrowCount clause should be present");
+
+        int end = stats.indexOf('\n', start);
+        String clause = end < 0 ? stats.substring(start) : stats.substring(start, end);
+
+        assertTrue(clause.startsWith("select count(l) from Loan l where l.bookId = b.id) as borrowCount"));
+        assertFalse(clause.contains("approvedAt"));
+        assertFalse(clause.contains("canceledAt"));
+        assertFalse(clause.contains("borrowerId"));
+    }
+
+    @Test
+    void projectionContractExposesBorrowCountGetter() throws Exception {
         Method getter = BookRepository.BookWithStats.class.getMethod("getBorrowCount");
 
-        assertNotNull(getter);
         assertEquals(Long.class, getter.getReturnType());
         assertEquals(0, getter.getParameterCount());
         assertTrue(Modifier.isPublic(getter.getModifiers()));
     }
 
-    private static String joinQueryValues(Annotation query) throws Exception {
-        Method valueMethod = query.annotationType().getMethod("value");
-        Object value = valueMethod.invoke(query);
+    @Test
+    void allStatBackedQueriesExposeBorrowCount() throws Exception {
+        Method[] methods = BookRepository.class.getDeclaredMethods();
+        assertTrue(methods.length > 0);
 
-        if (value instanceof String[]) {
-            return String.join("\n", (String[]) value);
+        for (Method method : methods) {
+            Query query = method.getAnnotation(Query.class);
+            if (query == null) {
+                continue;
+            }
+
+            assertTrue(query.value().contains(BORROW_COUNT_SUBSELECT),
+                    method.getName() + " must include the borrowCount scalar subselect");
         }
-        if (value instanceof String) {
-            return (String) value;
-        }
-        return String.valueOf(value);
     }
 
-    private static String normalize(String text) {
-        if (text == null) {
-            return "";
+    private static int countOccurrences(String haystack, String needle) {
+        int count = 0;
+        int index = haystack.indexOf(needle);
+
+        while (index >= 0) {
+            count++;
+            index = haystack.indexOf(needle, index + needle.length());
         }
-        return text.replaceAll("\\s+", " ").trim();
+
+        return count;
     }
 }
