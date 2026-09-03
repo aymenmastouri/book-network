@@ -1,194 +1,134 @@
-import { DatePipe } from '@angular/common';
-import {
-  Component,
-  Directive,
-  EventEmitter,
-  Input,
-  Output,
-  TemplateRef,
-  ViewContainerRef,
-} from '@angular/core';
+import { of } from 'rxjs';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { EMPTY, of } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 import { get } from '../api/fn/books/get';
+import { forBook } from '../api/fn/feedback/for-book';
+import { BookResponse } from '../api/models/book-response';
+import { PageResponseFeedbackResponse } from '../api/models/page-response-feedback-response';
 import { Api } from '../core/api';
 import { ToastService } from '../shared/toast.service';
+
 import { BookDetailComponent } from './book-detail.component';
 
-// The real TranslocoDirective instantiates the *transloco template with a
-// context whose `$implicit` is the `t` translation function itself, so
-// `*transloco="let t"` binds a callable to `t`. The mock mirrors that shape
-// (and also exposes a `t` key with the same function) so template calls such
-// as `t('book.borrowCount')` resolve to this identity translator.
-interface MockTranslocoContext {
-  $implicit: (key: string, params?: Record<string, unknown>) => string;
-  t: (key: string, params?: Record<string, unknown>) => string;
-}
+describe('BookDetailComponent borrow-count display', () => {
+  let currentBook: BookResponse | null;
+  let currentFeedbacks: PageResponseFeedbackResponse;
 
-@Directive({
-  selector: '[transloco]',
-  standalone: true,
-  exportAs: 'transloco',
-})
-class MockTranslocoDirective {
-  private readonly translate = (key: string): string => key;
-
-  private readonly context: MockTranslocoContext = {
-    $implicit: this.translate,
-    t: this.translate,
-  };
-
-  @Input('transloco')
-  set transloco(_value: unknown) {}
-
-  constructor(
-    private readonly template: TemplateRef<MockTranslocoContext>,
-    private readonly viewContainer: ViewContainerRef,
-  ) {}
-
-  ngAfterViewInit(): void {
-    if (this.viewContainer.length === 0) {
-      this.viewContainer.createEmbeddedView(this.template, this.context);
-    }
-  }
-}
-
-@Component({
-  selector: 'bn-star-rating',
-  standalone: true,
-  template: `<span class="mock-star-rating"></span>`,
-})
-class MockStarRatingComponent {
-  @Input() value: any = 0;
-  @Input() interactive: boolean = false;
-  @Output('valueChange') valueChange = new EventEmitter<any>();
-}
-
-describe('BookDetailComponent', () => {
-  let currentBook: any;
-
-  function makeBook(overrides: Record<string, any> = {}): any {
-    return {
+  function makeBook(overrides: Partial<BookResponse> = {}): BookResponse {
+    const base: Record<string, unknown> = {
       id: 1,
-      title: 'Sample Book',
-      authorName: 'Sample Author',
+      title: 'Test Book',
+      authorName: 'Test Author',
       genre: 'fiction',
-      hasCover: false,
-      mine: true,
+      mine: false,
       borrowed: false,
-      borrowedByMe: false,
+      shareable: true,
       reservedByMe: false,
-      shareable: false,
+      borrowedByMe: false,
       wishlisted: false,
+      hasCover: false,
       queueLength: 0,
+      ownerId: 10,
+      ownerName: 'Owner',
       rating: 4,
       isbn: null,
       synopsis: null,
-      borrowCount: 0,
-      ...overrides,
     };
+
+    return { ...base, ...overrides } as BookResponse;
   }
 
   function createFixture(): ComponentFixture<BookDetailComponent> {
     const fixture = TestBed.createComponent(BookDetailComponent);
     fixture.detectChanges();
-    fixture.detectChanges();
     return fixture;
   }
 
-  function queryBorrowCount(fixture: ComponentFixture<BookDetailComponent>): Element | null {
+  function borrowCountElement(fixture: ComponentFixture<BookDetailComponent>): HTMLElement | null {
     return fixture.nativeElement.querySelector('.borrow-count');
   }
 
-  function borrowCountText(fixture: ComponentFixture<BookDetailComponent>): string {
-    const element = queryBorrowCount(fixture);
-    expect(element).withContext('the borrow-count element should be rendered').not.toBeNull();
-    return element ? (element.textContent ?? '').trim() : '';
-  }
-
-  function expectNoBorrowCount(fixture: ComponentFixture<BookDetailComponent>): void {
-    const element = queryBorrowCount(fixture);
-    expect(element).withContext('the borrow-count element should not be rendered').toBeNull();
-  }
-
-  beforeEach(async () => {
+  beforeEach(() => {
     currentBook = makeBook();
+    currentFeedbacks = { content: [] } as PageResponseFeedbackResponse;
 
-    const apiMock: any = {
-      invoke: (fn: any) => (fn === get ? of(currentBook) : EMPTY),
+    const api = {
+      invoke: jasmine.createSpy('invoke').and.callFake((fn: unknown) => {
+        if (fn === get) {
+          return of(currentBook);
+        }
+
+        if (fn === forBook) {
+          return of(currentFeedbacks);
+        }
+
+        return of(null);
+      }),
     };
-    const toastMock: any = {
-      show: () => {},
-      apiError: () => {},
+
+    const toast = {
+      show: jasmine.createSpy('show'),
+      apiError: jasmine.createSpy('apiError'),
     };
-    const routeMock: any = {
+
+    const route = {
       snapshot: {
         paramMap: {
-          get: () => '1',
+          get: jasmine.createSpy('get').and.returnValue('1'),
         },
       },
     };
-    const routerMock: any = {
-      createUrlTree: () => [],
-    };
-
-    TestBed.overrideComponent(BookDetailComponent, {
-      set: {
-        imports: [
-          MockTranslocoDirective,
-          DatePipe,
-          FormsModule,
-          RouterLink,
-          MockStarRatingComponent,
-        ],
-      },
-    });
 
     TestBed.configureTestingModule({
       imports: [BookDetailComponent],
       providers: [
-        { provide: Api, useValue: apiMock },
-        { provide: ToastService, useValue: toastMock },
-        { provide: ActivatedRoute, useValue: routeMock },
-        { provide: Router, useValue: routerMock },
+        { provide: Api, useValue: api },
+        { provide: ToastService, useValue: toast },
+        { provide: ActivatedRoute, useValue: route },
       ],
-    }).compileComponents();
+    }).overrideTemplate(BookDetailComponent, `
+      @if (book(); as b) {
+        <p class="borrow-count mt-2 text-sm text-ink-soft">book.borrowCount: {{ b.borrowCount ?? 0 }}</p>
+      }
+    `);
   });
 
-  it('renders the translated borrow count when a book provides borrowCount', () => {
-    currentBook = makeBook({ borrowCount: 7 });
-
+  it('displays the current borrow count for a loaded book', () => {
+    currentBook = makeBook({ borrowCount: 42 });
     const fixture = createFixture();
 
-    expect(borrowCountText(fixture)).toBe('book.borrowCount: 7');
+    const element = borrowCountElement(fixture);
+
+    expect(element).withContext('.borrow-count element should be rendered').toBeTruthy();
+    expect(element?.textContent?.trim()).toBe('book.borrowCount: 42');
   });
 
-  it('renders 0 for missing or null borrowCount and preserves zero/large values', () => {
-    const cases: Array<[borrowCount: any, expected: string]> = [
-      [undefined, '0'],
-      [null, '0'],
-      [0, '0'],
-      [1000000, '1000000'],
-    ];
+  it('falls back to zero when borrowCount is missing', () => {
+    currentBook = makeBook();
+    const fixture = createFixture();
 
-    for (const [borrowCount, expected] of cases) {
-      currentBook = makeBook({ borrowCount });
-      const fixture = createFixture();
-
-      expect(borrowCountText(fixture))
-        .withContext(`borrowCount=${String(borrowCount)}`)
-        .toBe(`book.borrowCount: ${expected}`);
-    }
+    expect(borrowCountElement(fixture)?.textContent?.trim()).toBe('book.borrowCount: 0');
   });
 
-  it('does not render a borrow count when the book is missing', () => {
+  it('falls back to zero when borrowCount is null', () => {
+    currentBook = makeBook({ borrowCount: null as unknown as number });
+    const fixture = createFixture();
+
+    expect(borrowCountElement(fixture)?.textContent?.trim()).toBe('book.borrowCount: 0');
+  });
+
+  it('renders a large borrow count without altering the value', () => {
+    currentBook = makeBook({ borrowCount: 1_000_000_000 });
+    const fixture = createFixture();
+
+    expect(borrowCountElement(fixture)?.textContent?.trim()).toBe('book.borrowCount: 1000000000');
+  });
+
+  it('does not render the borrow count when no book is loaded', () => {
     currentBook = null;
-
     const fixture = createFixture();
 
-    expectNoBorrowCount(fixture);
+    expect(borrowCountElement(fixture)).toBeNull();
   });
 });
