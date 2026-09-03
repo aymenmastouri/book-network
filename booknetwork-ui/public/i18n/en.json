@@ -40,7 +40,8 @@
     "cancelReservation": "Leave queue",
     "reservedByMe": "In queue",
     "queue": "{{count}} waiting",
-    "sharedBy": "shared by {{name}}"
+    "sharedBy": "shared by {{name}}",
+    "borrowCount": "Times borrowed"
   },
   "status": {
     "available": "Available",

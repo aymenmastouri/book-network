@@ -87,6 +87,7 @@ import { ToastService } from '../shared/toast.service';
                 </a>
               }
             </div>
+            <p class="borrow-count mt-2 text-sm text-ink-soft">{{ t('book.borrowCount') }}: {{ b.borrowCount ?? 0 }}</p>
             @if (b.synopsis) {
               <p class="mt-5 max-w-2xl leading-relaxed">{{ b.synopsis }}</p>
             }

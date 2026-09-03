@@ -40,7 +40,8 @@
     "cancelReservation": "Schlange verlassen",
     "reservedByMe": "In der Schlange",
     "queue": "{{count}} wartend",
-    "sharedBy": "geteilt von {{name}}"
+    "sharedBy": "geteilt von {{name}}",
+    "borrowCount": "Ausleihungen"
   },
   "status": {
     "available": "Verfügbar",
