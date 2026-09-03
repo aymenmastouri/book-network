@@ -29,7 +29,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
                    (select count(r) > 0 from Reservation r where r.bookId = b.id and r.userId = :userId
                         and r.fulfilledAt is null and r.canceledAt is null) as reservedByMe,
                    (select count(r) from Reservation r where r.bookId = b.id
-                        and r.fulfilledAt is null and r.canceledAt is null) as queueLength
+                        and r.fulfilledAt is null and r.canceledAt is null) as queueLength,
+                   (select count(l) from Loan l where l.bookId = b.id) as borrowCount
             """;
 
     String BROWSE_WHERE = """
@@ -48,6 +49,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
         Boolean getWishlisted();
         Boolean getReservedByMe();
         Long getQueueLength();
+        Long getBorrowCount();
     }
 
     @Query(value = STATS + BROWSE_WHERE + " order by b.createdAt desc",

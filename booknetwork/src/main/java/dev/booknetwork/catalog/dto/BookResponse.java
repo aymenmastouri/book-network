@@ -20,5 +20,6 @@ public record BookResponse(
         boolean hasCover,
         boolean wishlisted,
         boolean reservedByMe,
-        long queueLength
+        long queueLength,
+        long borrowCount
 ) {}

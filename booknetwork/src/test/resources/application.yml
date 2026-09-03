@@ -1,0 +1,15 @@
+# Test configuration. @DataJpaTest slices run against the real PostgreSQL
+# that Flyway already migrated (see V1__schema.sql … V5), so the schema exists:
+# Hibernate only validates against it and the flyway migration is skipped. The
+# default profile and its local credentials come from the environment in the
+# same way as for the application itself.
+spring:
+  datasource:
+    url: jdbc:postgresql://${BOOKNETWORK_DB_HOST:localhost}:${BOOKNETWORK_DB_PORT:5432}/booknetwork
+    username: booknetwork
+    password: booknetwork
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: false
