@@ -80,6 +80,7 @@ import { ToastService } from '../shared/toast.service';
             <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-ink-soft">
               <bn-star-rating [value]="b.rating ?? 0" />
               <span class="rounded-full bg-shelf px-2 py-0.5 text-xs">{{ t('genres.' + b.genre) }}</span>
+              <span class="rounded-full bg-shelf px-2 py-0.5 text-xs">Times borrowed: {{ b.borrowCount ?? 0 }}</span>
               @if (b.isbn) { <span>ISBN {{ b.isbn }}</span> }
               @if (!b.mine) {
                 <a [routerLink]="['/members', b.ownerId]" class="hover:text-brand-deep hover:underline">
