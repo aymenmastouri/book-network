@@ -81,6 +81,7 @@ import { ToastService } from '../shared/toast.service';
               <bn-star-rating [value]="b.rating ?? 0" />
               <span class="rounded-full bg-shelf px-2 py-0.5 text-xs">{{ t('genres.' + b.genre) }}</span>
               @if (b.isbn) { <span>ISBN {{ b.isbn }}</span> }
+              <span class="borrow-count">Times borrowed: {{ b.borrowCount ?? 0 }}</span>
               @if (!b.mine) {
                 <a [routerLink]="['/members', b.ownerId]" class="hover:text-brand-deep hover:underline">
                   {{ t('book.sharedBy', { name: b.ownerName }) }}
