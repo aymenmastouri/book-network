@@ -35,7 +35,8 @@ public final class BookMapper {
                 book.getCoverPath() != null,
                 Boolean.TRUE.equals(stats.getWishlisted()),
                 Boolean.TRUE.equals(stats.getReservedByMe()),
-                stats.getQueueLength() == null ? 0 : stats.getQueueLength()
+                stats.getQueueLength() == null ? 0 : stats.getQueueLength(),
+                stats.getBorrowCount() == null ? 0 : stats.getBorrowCount()
         );
     }
 }
