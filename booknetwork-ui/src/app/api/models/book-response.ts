@@ -20,4 +20,5 @@ export interface BookResponse {
   synopsis?: string;
   title?: string;
   wishlisted?: boolean;
+  borrowCount?: number;
 }

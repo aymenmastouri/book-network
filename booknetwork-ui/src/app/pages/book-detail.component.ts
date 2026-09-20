@@ -86,6 +86,7 @@ import { ToastService } from '../shared/toast.service';
                   {{ t('book.sharedBy', { name: b.ownerName }) }}
                 </a>
               }
+              <span>{{ t('bookDetail.borrowCount') }}: {{ b.borrowCount ?? 0 }}</span>
             </div>
             @if (b.synopsis) {
               <p class="mt-5 max-w-2xl leading-relaxed">{{ b.synopsis }}</p>
